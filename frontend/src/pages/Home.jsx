@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const Home = () => {
   const [songs, setSongs] = useState([]); // Stores song results
@@ -14,6 +15,9 @@ const Home = () => {
     acousticness: "",
   });
 
+  // ดึงสถานะล็อกอินจาก Redux
+  const isLoggedIn = useSelector((state) => state.user.currentUser !== null);
+
   // Options for musical keys
   const keyOptions = [
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
@@ -26,11 +30,14 @@ const Home = () => {
 
   // Search songs function
   const searchSongs = async (e) => {
-    e.preventDefault(); // Prevent form submission from refreshing the page
+    e.preventDefault();
+    if (!isLoggedIn) {
+      setError("Please log in to search for songs.");
+      return;
+    }
     setLoading(true);
-    setError(""); // Reset error message
+    setError("");
 
-    // Filter out empty fields and format numeric fields
     const filteredFormData = Object.fromEntries(
       Object.entries(formData)
         .filter(([_, value]) => value.trim() !== "")
@@ -168,7 +175,10 @@ const Home = () => {
             <div className="flex justify-between mt-4">
               <button
                 type="submit"
-                className="w-1/2 bg-[#952A2A] text-[#FFFFFF] py-2 rounded-md text-lg font-Georgia font-bold hover:bg-gray-400 mr-2"
+                className={`w-1/2 py-2 rounded-md text-lg font-Georgia font-bold ${
+                  isLoggedIn ? "bg-[#952A2A] text-[#FFFFFF]" : "bg-gray-300 text-gray-500"
+                } hover:bg-gray-400 mr-2`}
+                disabled={!isLoggedIn} 
               >
                 Search
               </button>
@@ -181,6 +191,11 @@ const Home = () => {
               </button>
             </div>
           </form>
+          {!isLoggedIn && (
+            <p className="mt-4 text-red-500 text-center font-bold">
+              Please log in to search for songs.
+            </p>
+          )}
         </div>
       </section>
 
