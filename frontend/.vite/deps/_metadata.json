@@ -1,0 +1,130 @@
+{
+  "hash": "6f5a5416",
+  "configHash": "396c9be8",
+  "lockfileHash": "9c834b84",
+  "browserHash": "3d715966",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "2863979a",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "b2f931c8",
+      "needsInterop": true
+    },
+    "react-redux": {
+      "src": "../../node_modules/react-redux/es/index.js",
+      "file": "react-redux.js",
+      "fileHash": "0d77e9d4",
+      "needsInterop": false
+    },
+    "redux-persist/integration/react": {
+      "src": "../../node_modules/redux-persist/es/integration/react.js",
+      "file": "redux-persist_integration_react.js",
+      "fileHash": "0aab0dbe",
+      "needsInterop": false
+    },
+    "@reduxjs/toolkit": {
+      "src": "../../node_modules/@reduxjs/toolkit/dist/redux-toolkit.esm.js",
+      "file": "@reduxjs_toolkit.js",
+      "fileHash": "007835c7",
+      "needsInterop": false
+    },
+    "redux-persist": {
+      "src": "../../node_modules/redux-persist/es/index.js",
+      "file": "redux-persist.js",
+      "fileHash": "9670dd12",
+      "needsInterop": false
+    },
+    "redux-persist/lib/storage": {
+      "src": "../../node_modules/redux-persist/lib/storage/index.js",
+      "file": "redux-persist_lib_storage.js",
+      "fileHash": "558cf799",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "c0715b4e",
+      "needsInterop": false
+    },
+    "firebase/storage": {
+      "src": "../../node_modules/firebase/storage/dist/esm/index.esm.js",
+      "file": "firebase_storage.js",
+      "fileHash": "f8c433fe",
+      "needsInterop": false
+    },
+    "react-icons/fa": {
+      "src": "../../node_modules/react-icons/fa/index.esm.js",
+      "file": "react-icons_fa.js",
+      "fileHash": "3b966a45",
+      "needsInterop": false
+    },
+    "swiper/react": {
+      "src": "../../node_modules/swiper/swiper-react.mjs",
+      "file": "swiper_react.js",
+      "fileHash": "2114b362",
+      "needsInterop": false
+    },
+    "swiper": {
+      "src": "../../node_modules/swiper/swiper.mjs",
+      "file": "swiper.js",
+      "fileHash": "9cb2fc14",
+      "needsInterop": false
+    },
+    "swiper/modules": {
+      "src": "../../node_modules/swiper/modules/index.mjs",
+      "file": "swiper_modules.js",
+      "fileHash": "33b1f170",
+      "needsInterop": false
+    },
+    "firebase/app": {
+      "src": "../../node_modules/firebase/app/dist/esm/index.esm.js",
+      "file": "firebase_app.js",
+      "fileHash": "7b557f1d",
+      "needsInterop": false
+    },
+    "firebase/auth": {
+      "src": "../../node_modules/firebase/auth/dist/esm/index.esm.js",
+      "file": "firebase_auth.js",
+      "fileHash": "bb4caf11",
+      "needsInterop": false
+    },
+    "react-icons/md": {
+      "src": "../../node_modules/react-icons/md/index.esm.js",
+      "file": "react-icons_md.js",
+      "fileHash": "e098cd73",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-N7ZKW56F": {
+      "file": "chunk-N7ZKW56F.js"
+    },
+    "chunk-MEQWXNB5": {
+      "file": "chunk-MEQWXNB5.js"
+    },
+    "chunk-G5L4MBEV": {
+      "file": "chunk-G5L4MBEV.js"
+    },
+    "chunk-3SRUJWSL": {
+      "file": "chunk-3SRUJWSL.js"
+    },
+    "chunk-N4L4JSQ4": {
+      "file": "chunk-N4L4JSQ4.js"
+    },
+    "chunk-UXICNSAJ": {
+      "file": "chunk-UXICNSAJ.js"
+    },
+    "chunk-RHPDEHY5": {
+      "file": "chunk-RHPDEHY5.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
+    }
+  }
+}
