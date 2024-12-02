@@ -215,7 +215,7 @@ const Home = () => {
           >
             <h2 className="text-xl font-semibold truncate">{song.track_name}</h2>
             <p className="text-gray-600 mt-2 truncate">{song.artist_name}</p>
-            <p className="text-gray-500 text-sm mt-2 truncate">Key: {song.key}, BPM: {song.bpm}%</p>
+            <p className="text-gray-500 text-sm mt-2 truncate">Key: {song.key}, BPM: {song.bpm}</p>
             <p className="text-gray-500 text-sm mt-2 truncate">Danceability: {song.danceability}%, Valence: {song.valence}%</p>
             <p className="text-gray-500 text-sm mt-2 truncate">Energy: {song.energy}%, Acousticness: {song.acousticness}%</p>
             <a
@@ -274,7 +274,7 @@ const Home = () => {
               <li>Jiraphat Tinkhao 6510201052</li>
               <li>Pornpimon Sirithai 6510201063</li>
             </ul>
-            <p className="mt-4 text-sm">DE 351 Project By TheJorPor</p>
+            <p className="mt-4 text-sm">DE351 FinalProject By TheJorPor</p>
           </div>
         </div>
       </footer>
