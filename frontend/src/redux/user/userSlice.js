@@ -12,6 +12,7 @@ const userSlice = createSlice({
   reducers: {
     signInStart: (state) => {
       state.loading = true;
+      state.error = false; // Clear error when starting a new sign-in/sign-up attempt
     },
     signInSuccess: (state, action) => {
       state.currentUser = action.payload;
@@ -34,6 +35,9 @@ const userSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    clearError: (state) => {
+      state.error = false; // Explicitly reset error to false
+    },
   },
 });
 
@@ -43,7 +47,8 @@ export const {
   signInFailure,
   signOutUserFailure,
   signOutUserSuccess,
-  signOutUserStart
+  signOutUserStart,
+  clearError
 } = userSlice.actions;
 
 export default userSlice.reducer;

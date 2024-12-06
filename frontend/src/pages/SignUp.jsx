@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+  clearError
+} from '../redux/user/userSlice';
+
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -15,28 +22,33 @@ export default function SignUp() {
     });
   };
 
+  // Clear the error when the component is mounted
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      const res = await Axios.post('http://localhost:3246/api/auth/signup', formData, {
+      dispatch(signInStart());
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(formData),
       });
-      const data = res.data;
-      console.log(data);
-      if (data.success === false) {
-        setLoading(false);
-        setError(data.message);
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        dispatch(signInFailure(data)); // Dispatch failure action
         return;
       }
-      setLoading(false);
-      setError(null);
-      navigate('/sign-in');
+
+      dispatch(signInSuccess(data));
+      navigate('/');
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error));
     }
   };
 
@@ -80,7 +92,7 @@ export default function SignUp() {
           <span className='text-blue-700'>Sign in</span>
         </Link>
       </div>
-      {error && <p className='text-red-500 mt-5'>{error}</p>}
+      {error && <p className="text-red-700">{error.message || "Something went wrong"}</p>}
     </div>
   );
 }

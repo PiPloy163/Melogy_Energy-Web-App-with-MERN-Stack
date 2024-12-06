@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   signInStart,
   signInSuccess,
   signInFailure,
+  clearError
 } from '../redux/user/userSlice';
 
 export default function SignIn() {
@@ -18,6 +19,11 @@ export default function SignIn() {
       [e.target.id]: e.target.value,
     });
   };
+  // Clear the error when the component is mounted
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -30,15 +36,15 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+      
+      if (!res.ok || data.success === false) {
+        dispatch(signInFailure(data)); // Dispatch failure action
         return;
       }
       dispatch(signInSuccess(data));
       navigate('/');
     } catch (error) {
-      dispatch(signInFailure(error.message));
+      dispatch(signInFailure(error));
     }
   };
   return (
@@ -73,7 +79,7 @@ export default function SignIn() {
           <span className='text-blue-700 font-bold'>Sign up</span>
         </Link>
       </div>
-      {error && <p className='text-red-500 mt-5'>{error}</p>}
+      {error && <p className="text-red-700">{error.message || "Something went wrong"}</p>}
     </div>
   );
 }
