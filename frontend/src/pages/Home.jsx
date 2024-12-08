@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import io from 'socket.io-client';
+import React, { useState , useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+
+const socket = io('http://localhost:3246'); // เชื่อมต่อกับ server
 
 const Home = () => {
   const [songs, setSongs] = useState([]); // Stores song results
@@ -14,6 +17,25 @@ const Home = () => {
     energy: "",
     acousticness: "",
   });
+
+  useEffect(() => {
+    socket.on('likeUpdated', (updatedSong) => {
+      setSongs((prevSongs) =>
+        prevSongs.map((song) =>
+          song._id === updatedSong._id ? { ...song, likes: updatedSong.likes } : song
+        )
+      );
+    });
+  
+    // ลบ event listener เมื่อ component ถูก unmount
+    return () => {
+      socket.off('likeUpdated');
+    };
+  }, []);
+  
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [currentSongId, setCurrentSongId] = useState(null);
+  const [comment, setComment] = useState("");
 
   // ดึงสถานะล็อกอินจาก Redux
   const isLoggedIn = useSelector((state) => state.user.currentUser !== null);
@@ -70,6 +92,68 @@ const Home = () => {
     setSongs([]);
     setError("");
   };
+
+  // Handle liking a song
+  const handleLike = async (songId) => {
+    try {
+      const response = await axios.post(`http://localhost:3246/api/songs/${songId}/like`);
+      const updatedSong = response.data;
+      setSongs((prevSongs) =>
+        prevSongs.map((song) =>
+          song._id === songId ? { ...song, likes: updatedSong.likes } : song
+        )
+      );
+    } catch (error) {
+      console.error("Error liking song:", error);
+    }
+  };
+
+  // Open comment modal
+const openCommentModal = (songId) => {
+  setCurrentSongId(songId);
+  setIsCommentModalOpen(true);
+};
+
+// Submit comment
+const submitComment = async () => {
+  if (!comment.trim()) {
+    alert("Please enter a valid comment.");
+    return; // ถ้าคอมเมนต์ว่างไม่ให้ส่ง
+  }
+
+  try {
+    // เรียก API เพื่อส่งความคิดเห็น
+    const response = await axios.post(`http://localhost:3246/api/songs/${currentSongId}/comment`, {
+      text: comment, // ปรับเป็น key "text" ให้ตรงกับ back-end
+    });
+
+    // แจ้งให้ผู้ใช้ทราบว่าคอมเมนต์สำเร็จ
+    alert("Comment submitted successfully!");
+
+    // อัปเดต UI (ถ้ามี response กลับมาเป็นคอมเมนต์ที่เพิ่ม)
+    const newComment = response.data.comment; // สมมติ back-end ส่งข้อมูลคอมเมนต์ใหม่กลับมา
+    setSongs((prevSongs) =>
+      prevSongs.map((song) =>
+        song._id === currentSongId
+          ? { ...song, comments: [...song.comments, newComment] }
+          : song
+      )
+    );
+
+    // ล้างฟอร์มคอมเมนต์และปิด modal
+    setComment("");
+    setIsCommentModalOpen(false);
+  } catch (error) {
+    console.error("Error submitting comment:", error);
+
+    // แสดงข้อความ error ให้ชัดเจน
+    const errorMessage =
+      error.response?.data?.error || "Failed to submit comment. Please try again later.";
+    alert(errorMessage);
+  }
+};
+
+  
 
   return (
     <div>
@@ -209,31 +293,103 @@ const Home = () => {
     ) : songs.length > 0 ? (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {songs.map((song, index) => (
-          <div
-            key={index}
-            className="p-6 bg-white shadow-lg rounded-lg overflow-hidden text-center transform transition-transform hover:scale-105"
-          >
-            <h2 className="text-xl font-semibold truncate">{song.track_name}</h2>
-            <p className="text-gray-600 mt-2 truncate">{song.artist_name}</p>
-            <p className="text-gray-500 text-sm mt-2 truncate">Key: {song.key}, BPM: {song.bpm}</p>
-            <p className="text-gray-500 text-sm mt-2 truncate">Danceability: {song.danceability}%, Valence: {song.valence}%</p>
-            <p className="text-gray-500 text-sm mt-2 truncate">Energy: {song.energy}%, Acousticness: {song.acousticness}%</p>
-            <a
-              href={song.spotify_url}
-              className="block mt-4 text-blue-500 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
+  <div
+    key={index}
+    className="p-6 bg-white shadow-lg rounded-lg overflow-hidden text-center transform transition-transform hover:scale-105"
+  >
+    <h2 className="text-xl font-semibold truncate">{song.track_name}</h2>
+    <p className="text-gray-600 mt-2 truncate">{song.artist_name}</p>
+    <p className="text-gray-500 text-sm mt-2 truncate">
+      Key: {song.key} BPM: {song.bpm}
+    </p>
+    <p className="text-gray-500 text-sm mt-2 truncate">
+      Danceability: {song.danceability}% Valence: {song.valence}%
+    </p>
+    <p className="text-gray-500 text-sm mt-2 truncate">
+      Energy: {song.energy}% Acousticness: {song.acousticness}%
+    </p>
+    <a
+      href={song.spotify_url}
+      className="block mt-4 text-blue-500 hover:underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Listen on Spotify
+    </a>
+    <div className="mt-4 flex justify-center space-x-4">
+      <button
+        className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600"
+        onClick={() => handleLike(song._id)}
+      >
+        Like ({song.likes || 0})
+      </button>
+      <button
+        className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
+        onClick={() => openCommentModal(song._id)}
+      >
+        Comment
+      </button>
+    </div>
+
+    {/* Display Comments */}
+    <div className="mt-4 text-left">
+      <h3 className="text-lg font-semibold">Comments:</h3>
+      {song.comments && song.comments.length > 0 ? (
+        <ul className="mt-2 space-y-2">
+          {song.comments.map((comment, idx) => (
+            <li
+              key={idx}
+              className="bg-gray-100 p-2 rounded shadow-sm text-gray-700"
             >
-              Listen on Spotify
-            </a>
-          </div>
-        ))}
+              {comment.text}{" "}
+              <span className="text-sm text-gray-500">
+                ({new Date(comment.date).toLocaleString()})
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-gray-500">No comments yet.</p>
+      )}
+    </div>
+  </div>
+))}
       </div>
     ) : (
       <p className="text-center text-gray-600">No songs found. Try adjusting your search criteria.</p>
     )}
   </div>
+
+  {/* Comment Modal */}
+  {isCommentModalOpen && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+        <h3 className="text-xl font-semibold">Add a Comment</h3>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full mt-4 p-2 border rounded"
+          placeholder="Write your comment here..."
+        ></textarea>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={submitComment}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
+          >
+            Submit
+          </button>
+          <button
+            onClick={() => setIsCommentModalOpen(false)}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg shadow hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
 </section>
+
 
 
       {/* Footer Section */}

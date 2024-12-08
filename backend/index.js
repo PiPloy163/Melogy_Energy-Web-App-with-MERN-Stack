@@ -5,11 +5,37 @@ import Song from './models/song.model.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import userRoutes from './routes/user.route.js';
+import songRouter from './routes/song.route.js';
 import authRoutes from './routes/auth.route.js';
 import dotenv from 'dotenv';
+import http from 'http';  // เพิ่มการ import สำหรับ HTTP server
+import { Server } from 'socket.io'; // ใช้ import สำหรับ socket.io
+
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
+// Middleware เพื่อแปลงข้อมูล JSON
+app.use(express.json()); // รองรับ JSON
+app.use(express.urlencoded({ extended: true })); // รองรับ form-urlencoded
+
+app.use('/songs', songRouter);
+
+app.use('/api/songs', songRouter);
+app.use('/api/auth', authRoutes);
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -20,27 +46,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors({
   origin: 'http://localhost:5173', // frontend's URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE' ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
-}))
+}));
 
 // เชื่อมต่อกับ MongoDB
 const MONGO_URI = 'mongodb+srv://pornpimon:ploy0163@melodydb.wxwfd.mongodb.net/?retryWrites=true&w=majority&appName=melodydb'; // เปลี่ยนเป็น URI ของคุณ
 mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true, // แนะนำให้ใช้ true
-    useUnifiedTopology: true, // แนะนำให้ใช้ true
-    serverSelectionTimeoutMS: 5000, // ตั้งเวลา 5 วินาที
-  })
-  .then(() => {
-    console.log('MongoDB connected successfully!');
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    // ลองพิมพ์รายละเอียดเพิ่มเติม
-    if (err instanceof mongoose.Error) {
-      console.error('Mongoose error details:', err.message);
-    }
-  });
+  useNewUrlParser: true, // แนะนำให้ใช้ true
+  useUnifiedTopology: true, // แนะนำให้ใช้ true
+  serverSelectionTimeoutMS: 5000, // ตั้งเวลา 5 วินาที
+})
+.then(() => {
+  console.log('MongoDB connected successfully!');
+})
+.catch((err) => {
+  console.error('MongoDB connection error:', err);
+  // ลองพิมพ์รายละเอียดเพิ่มเติม
+  if (err instanceof mongoose.Error) {
+    console.error('Mongoose error details:', err.message);
+  }
+});
 
 // API Route: ดึงข้อมูลเพลงทั้งหมด
 app.get('/api/songs', async (req, res) => {
@@ -56,8 +82,6 @@ app.get('/api/songs', async (req, res) => {
 });
 
 // API Route: ค้นหาเพลงตามชื่อ
-
-// Search route
 app.get('/api/songs/search', async (req, res) => {
   try {
     // Extract search parameters from the query
@@ -101,10 +125,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-
 // Start server
 const PORT = process.env.PORT || 3246;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

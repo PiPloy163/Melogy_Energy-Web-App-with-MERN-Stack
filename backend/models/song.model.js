@@ -11,7 +11,14 @@ const songSchema = new mongoose.Schema({
   valence: { type: String, required: false },
   energy: { type: String, required: false },
   acousticness: { type: String, required: false },
-  spotify_url : { type: String, required: false }
+  spotify_url : { type: String, required: false },
+  likes: { type: Number, default: 0 },
+  comments: [
+    {
+      text: String,
+      date: { type: Date, default: Date.now }
+    }
+  ]
 });
 
 const Song = mongoose.model('Song', songSchema);

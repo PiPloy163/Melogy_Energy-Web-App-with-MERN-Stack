@@ -6,6 +6,7 @@ import ProfilePage from './pages/Profile';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Header from './components/Header';
+import { io } from "socket.io-client";
 
 function App() {
   const [songs, setSongs] = useState([]);
@@ -24,7 +25,18 @@ function App() {
   };
 
   useEffect(() => {
-    fetchSongs();
+    const socket = io("http://localhost:3246");
+  
+    socket.on("likeUpdated", (song) => {
+      console.log("Updated song:", song);
+      setSongs((prevSongs) =>
+        prevSongs.map((s) =>
+          s._id === song._id ? { ...s, likes: song.likes } : s
+        )
+      );
+    });
+  
+    return () => socket.disconnect(); // Cleanup เมื่อ Component ถูก unmount
   }, []);
 
   return (
